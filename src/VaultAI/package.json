@@ -1,0 +1,133 @@
+{
+  "name": "vaultai",
+  "version": "1.9.0",
+  "description": "VaultAI Tools \u2014 a password manager built for AI / \u7ed9 AI \u7528\u7684\u5bc6\u7801\u7ba1\u5bb6",
+  "type": "module",
+  "main": "dist/electron/main.js",
+  "bin": {
+    "vaultai": "./bin/vaultai.js",
+    "vaultai-tools": "./bin/vaultai.js"
+  },
+  "scripts": {
+    "build": "tsc && node scripts/copy-assets.mjs",
+    "start": "node dist/server/index.js",
+    "dev": "tsx src/server/index.ts",
+    "electron": "npm run build && electron .",
+    "cli": "node bin/vaultai.js",
+    "dist:win": "npm run build && electron-builder --win --x64",
+    "dist:portable": "npm run build && electron-builder --win portable --x64",
+    "pack:installer": "node scripts/make-windows-installer.mjs",
+    "pack:src": "node scripts/make-src-zip.mjs",
+    "postinstall": "node scripts/copy-assets.mjs || true",
+    "test:e2e": "npm run build && node e2e/run-e2e.mjs",
+    "test:unit": "npm run build && node e2e/unit-generator.mjs && node e2e/unit-migrate.mjs && node e2e/unit-autofill.mjs && node e2e/unit-mini-picker.mjs && node e2e/unit-import.mjs && node e2e/unit-db-storage.mjs && node e2e/unit-totp.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "mysql2": "^3.24.6",
+    "pg": "^8.23.1",
+    "sql.js": "^1.15.1",
+    "uuid": "^11.0.5"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.10.5",
+    "@types/uuid": "^10.0.0",
+    "electron": "^33.2.1",
+    "electron-builder": "^26.17.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  },
+  "build": {
+    "appId": "com.vaultai.tools",
+    "productName": "VaultAI",
+    "copyright": "Copyright \u00a9 VaultAI",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "ui/**/*",
+      "bin/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "ui",
+        "to": "ui"
+      },
+      {
+        "from": "scripts/win-autofill",
+        "to": "win-autofill"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "dir",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "VaultAI-Setup-${version}.${ext}",
+      "signAndEditExecutable": false,
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "VaultAI Tools",
+      "artifactName": "VaultAI-Setup-${version}.${ext}",
+      "unicode": true,
+      "installerLanguages": [
+        "zh_CN",
+        "en_US"
+      ],
+      "language": "2052"
+    },
+    "portable": {
+      "artifactName": "VaultAI-Setup-${version}-Portable.${ext}"
+    },
+    "asar": true,
+    "icon": "build/icon.ico",
+    "asarUnpack": [
+      "**/node_modules/sql.js/dist/*.wasm"
+    ]
+  },
+  "keywords": [
+    "password-manager",
+    "mcp",
+    "ai",
+    "vault",
+    "github"
+  ],
+  "license": "MIT",
+  "author": "VaultAI",
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "electron@33.4.11": true
+  }
+}

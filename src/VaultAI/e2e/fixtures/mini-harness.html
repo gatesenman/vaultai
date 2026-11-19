@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Sign in — Example</title>
+<style>
+body{margin:0;font:14px system-ui,"Microsoft YaHei UI",sans-serif;background:#eef1f6;height:100vh}
+.card{position:absolute;left:var(--cx,380px);top:var(--cy,170px);width:360px;background:#fff;border-radius:10px;padding:26px 28px;box-shadow:0 2px 10px #0001}
+h1{font-size:19px;margin:0 0 18px}label{display:block;font-size:12px;color:#555;margin:12px 0 4px}
+input{width:100%;box-sizing:border-box;font:15px system-ui;padding:9px 10px;border:1px solid #c7ccd6;border-radius:6px;outline:none}
+input:focus{border-color:#4f7cff;box-shadow:0 0 0 3px #4f7cff22}
+button{margin-top:18px;width:100%;padding:10px;border:0;border-radius:6px;background:#4f7cff;color:#fff;font-size:14px}
+#mirror{position:absolute;visibility:hidden;white-space:pre;font:15px system-ui}
+iframe{position:fixed;border:0;background:transparent;display:none;z-index:9}
+</style></head><body>
+<div class="card"><h1 id="h">Sign in</h1>
+<label id="lu">Username</label><input id="user" autocomplete="off"><label id="lp">Password</label><input id="pass" type="password"><button id="b">Sign in</button></div>
+<span id="mirror"></span>
+<iframe id="mini" allowtransparency="true"></iframe>
+<script type="module">
+import { computeMiniBounds, miniHeight, isOutsideClick, MINI } from '/autofill/mini-core.js';
+const P = new URLSearchParams(location.search);
+const user = document.getElementById('user'), fr = document.getElementById('mini');
+if (P.get('cy')) document.querySelector('.card').style.setProperty('--cy', P.get('cy') + 'px');
+if (P.get('lang') === 'zh-CN') { h.textContent = '登录'; lu.textContent = '用户名'; lp.textContent = '密码'; b.textContent = '登录'; }
+const display = { id: 1, bounds: { x: 0, y: 0, width: innerWidth, height: innerHeight }, workArea: { x: 0, y: 0, width: innerWidth, height: innerHeight }, scaleFactor: 1 };
+function caretRect() {
+  const r = user.getBoundingClientRect(); const cs = getComputedStyle(user);
+  const m = document.getElementById('mirror'); m.textContent = user.value.slice(0, user.selectionStart ?? user.value.length);
+  const x = r.left + parseFloat(cs.paddingLeft) + parseFloat(cs.borderLeftWidth) + m.getBoundingClientRect().width;
+  const lh = 19; return { x: Math.round(x), y: Math.round(r.top + (r.height - lh) / 2), width: 1, height: lh };
+}
+let rows = 1, open = false;
+function place() {
+  const b = computeMiniBounds({ anchor: caretRect(), displays: [display], width: MINI.width + 6, height: miniHeight(rows) + 8 });
+  Object.assign(fr.style, { left: b.x + 'px', top: b.y + 'px', width: b.width + 'px', height: b.height + 'px', display: 'block' });
+  document.body.dataset.flipped = String(b.flipped);
+  window.__bounds = b;
+}
+window.__open = (typed) => {
+  user.value = typed; user.focus(); user.setSelectionRange(typed.length, typed.length);
+  const q = new URLSearchParams({ port: location.port, lang: P.get('lang') || 'en', typed, host: P.get('host') || 'https://mail.google.com', title: 'Sign in', confirm: '0' });
+  fr.src = '/autofill/index.html?' + q; open = true; place();
+};
+window.__resize = (n) => { rows = n; if (open) place(); };
+window.__closed = () => { open = false; fr.style.display = 'none'; document.body.dataset.closed = '1'; };
+// Simulated global key hook: keys pressed in the *target field* go to the box (focus never moves).
+const K = { ArrowDown: 'Down', ArrowUp: 'Up', Enter: 'Enter', Tab: 'Tab', Escape: 'Escape' };
+user.addEventListener('keydown', (e) => {
+  if (!open) return; const k = K[e.key] || (/^[1-6]$/.test(e.key) ? e.key : null);
+  if (!k) return; e.preventDefault(); fr.contentWindow.__keyCb?.(k);
+});
+// Simulated tracker: live text streams to the box.
+user.addEventListener('input', () => { if (open) { fr.contentWindow.__typedCb?.(user.value); place(); } });
+document.addEventListener('mousedown', (e) => { if (open && window.__bounds && isOutsideClick(window.__bounds, { x: e.clientX, y: e.clientY })) window.__closed(); });
+</script></body></html>

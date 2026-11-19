@@ -1,0 +1,2 @@
+url,username,password,httpRealm,formActionOrigin,guid,timeCreated,timeLastUsed,timePasswordChanged
+https://mozilla.org,ff-user,FfPass3!,,https://mozilla.org,{guid-1},100,200,300

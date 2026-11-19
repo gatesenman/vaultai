@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VaultAI Quick Create</title>
+  <link rel="stylesheet" href="sheet.css" />
+</head>
+<body>
+  <div id="sheet" class="sheet" role="dialog" aria-label="VaultAI Quick Create">
+    <div class="head">
+      <div class="title" id="ttl">快速新建</div>
+      <button type="button" class="x" id="btn-x" aria-label="Close">×</button>
+    </div>
+    <form id="form" autocomplete="off" spellcheck="false">
+      <label class="lab" for="url" id="lab-url">网址</label>
+      <input id="url" type="url" inputmode="url" placeholder="https://…" />
+      <label class="lab" for="title" id="lab-title">标题</label>
+      <input id="title" maxlength="120" placeholder="" />
+      <label class="lab" for="user" id="lab-user">用户名</label>
+      <input id="user" autocomplete="off" />
+      <label class="lab" for="pass" id="lab-pass">密码</label>
+      <div class="row">
+        <input id="pass" type="password" class="mono grow" autocomplete="new-password" />
+        <button type="button" class="ico" id="btn-eye" title="Show">👁</button>
+        <button type="button" class="ico accent" id="btn-gen" title="Generate">🎲</button>
+      </div>
+      <div class="err hidden" id="err" role="alert"></div>
+      <div class="acts">
+        <button type="button" class="ghost" id="btn-more">更多…</button>
+        <span class="spacer"></span>
+        <button type="button" class="secondary" id="btn-another">保存并再建</button>
+        <button type="submit" class="primary" id="btn-save">保存</button>
+      </div>
+    </form>
+    <div class="foot" id="foot"></div>
+  </div>
+  <script type="module" src="sheet.js"></script>
+</body>
+</html>

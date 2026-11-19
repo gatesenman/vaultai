@@ -1,0 +1,104 @@
+# VaultAI Tools __VERSION__ — Enhanced Windows Installer / 增强安装脚本
+# Bilingual · Start Menu + Desktop · Apps & features uninstall · optional launch
+$ErrorActionPreference = 'Stop'
+$Root = Split-Path -Parent $MyInvocation.MyCommand.Path
+$Version = '__VERSION__'
+$InstallDir = Join-Path $env:LOCALAPPDATA 'VaultAI'
+$StartMenu = Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs\VaultAI'
+$Desktop = [Environment]::GetFolderPath('Desktop')
+$UninstallKey = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\VaultAITools'
+$Launch = $true
+if ($args -contains '-NoLaunch') { $Launch = $false }
+
+function W($zh, $en) {
+  Write-Host ("  {0} / {1}" -f $zh, $en)
+}
+
+Write-Host ''
+Write-Host '============================================' -ForegroundColor Magenta
+Write-Host ("  VaultAI Tools {0}  Setup / 安装" -f $Version) -ForegroundColor Magenta
+Write-Host '============================================'
+W '正在安装到' 'Installing to'
+Write-Host ("  {0}" -f $InstallDir) -ForegroundColor Cyan
+
+if (Test-Path $InstallDir) {
+  W '移除旧版本…' 'Removing previous install…'
+  Remove-Item -Recurse -Force $InstallDir
+}
+New-Item -ItemType Directory -Path $InstallDir -Force | Out-Null
+
+Copy-Item -Path (Join-Path $Root 'runtime') -Destination (Join-Path $InstallDir 'runtime') -Recurse -Force
+Copy-Item -Path (Join-Path $Root 'app') -Destination (Join-Path $InstallDir 'app') -Recurse -Force
+Copy-Item -Path (Join-Path $Root 'VaultAI.bat') -Destination $InstallDir -Force
+Copy-Item -Path (Join-Path $Root 'VaultAI-Silent.bat') -Destination $InstallDir -Force
+
+$UninstallScript = @'
+$ErrorActionPreference = "Stop"
+$InstallDir = Join-Path $env:LOCALAPPDATA "VaultAI"
+$StartMenu = Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs\VaultAI"
+$DesktopLnk = Join-Path ([Environment]::GetFolderPath("Desktop")) "VaultAI Tools.lnk"
+$UninstallKey = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\VaultAITools"
+Write-Host "Uninstalling VaultAI / 正在卸载 VaultAI…"
+if (Test-Path $StartMenu) { Remove-Item -Recurse -Force $StartMenu }
+if (Test-Path $DesktopLnk) { Remove-Item -Force $DesktopLnk }
+if (Test-Path $UninstallKey) { Remove-Item -Recurse -Force $UninstallKey }
+if (Test-Path $InstallDir) { Remove-Item -Recurse -Force $InstallDir }
+Write-Host "Done. VaultAI removed. / 卸载完成。"
+'@
+Set-Content -Path (Join-Path $InstallDir 'Uninstall-VaultAI.ps1') -Value $UninstallScript -Encoding UTF8
+
+function New-Shortcut($Path, $Target, $Arguments, $WorkDir, $Desc) {
+  $w = New-Object -ComObject WScript.Shell
+  $s = $w.CreateShortcut($Path)
+  $s.TargetPath = $Target
+  if ($Arguments) { $s.Arguments = $Arguments }
+  $s.WorkingDirectory = $WorkDir
+  $s.Description = $Desc
+  $s.Save()
+}
+
+New-Item -ItemType Directory -Path $StartMenu -Force | Out-Null
+$bat = Join-Path $InstallDir 'VaultAI-Silent.bat'
+$uninstaller = Join-Path $InstallDir 'Uninstall-VaultAI.ps1'
+$psArgs = '-NoProfile -ExecutionPolicy Bypass -File "' + $uninstaller + '"'
+New-Shortcut (Join-Path $StartMenu 'VaultAI Tools.lnk') $bat $null $InstallDir 'VaultAI Tools'
+New-Shortcut (Join-Path $Desktop 'VaultAI Tools.lnk') $bat $null $InstallDir 'VaultAI Tools'
+New-Shortcut (Join-Path $StartMenu '卸载 VaultAI.lnk') 'powershell.exe' $psArgs $InstallDir 'Uninstall VaultAI'
+New-Shortcut (Join-Path $StartMenu 'Uninstall VaultAI.lnk') 'powershell.exe' $psArgs $InstallDir 'Uninstall VaultAI'
+
+New-Item -Path $UninstallKey -Force | Out-Null
+Set-ItemProperty -Path $UninstallKey -Name 'DisplayName' -Value ("VaultAI Tools {0}" -f $Version)
+Set-ItemProperty -Path $UninstallKey -Name 'DisplayVersion' -Value $Version
+Set-ItemProperty -Path $UninstallKey -Name 'Publisher' -Value 'VaultAI'
+Set-ItemProperty -Path $UninstallKey -Name 'InstallLocation' -Value $InstallDir
+Set-ItemProperty -Path $UninstallKey -Name 'UninstallString' -Value ('powershell.exe ' + $psArgs)
+Set-ItemProperty -Path $UninstallKey -Name 'QuietUninstallString' -Value ('powershell.exe ' + $psArgs)
+Set-ItemProperty -Path $UninstallKey -Name 'NoModify' -Value 1 -Type DWord
+Set-ItemProperty -Path $UninstallKey -Name 'NoRepair' -Value 1 -Type DWord
+try {
+  $sizeKb = [int]((Get-ChildItem $InstallDir -Recurse -ErrorAction SilentlyContinue | Measure-Object -Property Length -Sum).Sum / 1KB)
+  Set-ItemProperty -Path $UninstallKey -Name 'EstimatedSize' -Value $sizeKb -Type DWord
+} catch {}
+
+$installInfo = @"
+VaultAI Tools $Version
+Install: $InstallDir
+Start Menu: VaultAI Tools
+Uninstall: Settings -> Apps -> VaultAI Tools
+  or: $uninstaller
+MCP: http://127.0.0.1:3847/mcp
+Language: Settings -> UI language (zh-CN / English)
+"@
+Set-Content (Join-Path $InstallDir 'INSTALL.txt') -Value $installInfo -Encoding UTF8
+
+Write-Host ''
+W '安装完成' 'Installed successfully'
+W '开始菜单与桌面快捷方式已创建' 'Start Menu + Desktop shortcuts created'
+W '已注册到应用和功能' 'Registered in Apps and features'
+if ($Launch) {
+  W '正在启动…' 'Launching…'
+  Start-Process $bat
+} else {
+  W '跳过启动（-NoLaunch）' 'Skipped launch (-NoLaunch)'
+}
+Write-Host ''

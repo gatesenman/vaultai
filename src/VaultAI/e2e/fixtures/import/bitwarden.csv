@@ -1,0 +1,3 @@
+folder,favorite,type,name,notes,fields,reprompt,login_uri,login_username,login_password,login_totp
+Personal,0,login,BW GitHub,note here,,0,https://github.com,bw-alice,BwPass4!,otpauth://totp/GitHub:bw-alice?secret=JBSWY3DPEHPK3PXP&issuer=GitHub
+Work,0,note,NotALogin,skipme,,,,,,

@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "createdAt": "2026-10-19T07:22:38.098Z",
+  "verifier": {
+    "salt": "cd08f292021b4e8df13177ff5a2b36b6",
+    "iv": "dd6d95be0cf9c030ac33525c",
+    "tag": "1a88c94a662db69812f3c1ede0a23535",
+    "ciphertext": "adf77d1a6a1949372205bf8cb3"
+  }
+}

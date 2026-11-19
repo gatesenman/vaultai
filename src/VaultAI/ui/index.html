@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VaultAI Tools</title>
+  <link rel="icon" href="/img/icon.png" />
+  <link rel="stylesheet" href="/css/app.css" />
+  <link rel="stylesheet" href="/css/forms.css" />
+</head>
+<body>
+  <!-- ================= LOCK SCREEN ================= -->
+  <div id="lock" class="lock-screen">
+    <div class="lock-box">
+      <div class="lock-lang seg" role="group" aria-label="Language / 语言">
+        <button type="button" data-lock-lang="zh-CN">中文</button><button type="button" data-lock-lang="en">English</button>
+      </div>
+      <h1><img src="/img/icon.png" alt="" class="lock-logo" /> VaultAI Tools</h1>
+      <p class="muted" data-i18n="tagline">让 AI 安全地使用你的凭据</p>
+
+      <form id="lock-create" class="hidden form" novalidate data-form="create" autocomplete="off">
+        <h4 class="form-section" data-i18n="f_createTitle">Create your vault</h4>
+        <div class="field">
+          <label class="field-label required" for="create-pw" data-i18n="f_masterPw">Master password</label>
+          <div class="input-wrap">
+            <input id="create-pw" type="password" autocomplete="new-password" spellcheck="false" autocapitalize="off" autocorrect="off" data-rules="required|master" data-i18n-ph="ph_master" />
+            <button type="button" class="icon-btn" data-eye="create-pw" data-icon="eye" tabindex="-1"></button>
+            <button type="button" class="icon-btn" id="btn-suggest-master" data-icon="dice" tabindex="-1"></button>
+          </div>
+          <div class="caps hidden" data-caps-for="create-pw" data-i18n="f_capsOn">Caps Lock is on</div>
+          <div class="meter" data-meter-for="create-pw" data-context="master"></div>
+          <ul class="checklist" data-checklist-for="create-pw"></ul>
+          <div class="err" role="alert"></div>
+        </div>
+        <div class="field">
+          <label class="field-label required" for="create-pw2" data-i18n="f_confirmPw">Confirm master password</label>
+          <div class="input-wrap">
+            <input id="create-pw2" type="password" autocomplete="new-password" spellcheck="false" autocapitalize="off" autocorrect="off" data-rules="required|match:create-pw" />
+            <span class="match-ind" data-match-for="create-pw2"></span>
+          </div>
+          <div class="caps hidden" data-caps-for="create-pw2" data-i18n="f_capsOn">Caps Lock is on</div>
+          <div class="err" role="alert"></div>
+        </div>
+        <div class="callout warn">
+          <strong data-i18n="f_noRecoveryTitle">There is no password recovery</strong>
+          <div data-i18n="f_noRecoveryBody"></div>
+          <label class="check"><input type="checkbox" id="create-ack" data-rules="checked" /> <span data-i18n="f_noRecoveryAck">I understand</span></label>
+          <div class="err" role="alert"></div>
+        </div>
+        <div class="form-errors hidden" role="alert"></div>
+        <button class="btn block" type="submit" id="btn-create" data-i18n="createVault">Create vault</button>
+      </form>
+
+      <form id="lock-unlock" class="hidden form" novalidate data-form="unlock">
+        <div class="field">
+          <label class="field-label" for="unlock-pw" data-i18n="masterPw">Master password</label>
+          <div class="input-wrap">
+            <input id="unlock-pw" type="password" autocomplete="current-password" spellcheck="false" autocapitalize="off" autocorrect="off" data-rules="required" />
+            <button type="button" class="icon-btn" data-eye="unlock-pw" data-icon="eye" tabindex="-1"></button>
+          </div>
+          <div class="caps hidden" data-caps-for="unlock-pw" data-i18n="f_capsOn">Caps Lock is on</div>
+          <div class="err" role="alert"></div>
+        </div>
+        <button class="btn block" type="submit" id="btn-unlock" data-i18n="unlock">Unlock</button>
+      </form>
+      <div class="err-msg" id="lock-err" role="alert"></div>
+    </div>
+  </div>
+
+  <!-- ================= SHELL ================= -->
+  <div id="shell" class="hidden">
+    <div class="titlebar">
+      <span class="dot"></span>
+      <span class="product">VaultAI Tools</span>
+      <div class="spacer"></div>
+      <div class="tb-actions">
+        <button class="btn sm kill-btn" id="btn-killswitch" data-i18n="ks_short">Revoke all AI access</button>
+        <span class="pill" id="status-pill"><span class="status-dot" id="status-dot"></span> <span id="status-text">…</span></span>
+        <button class="btn sm secondary" id="btn-lock" data-i18n="lock">Lock</button>
+      </div>
+    </div>
+    <div class="body">
+      <aside class="sidebar">
+        <div class="brand"><h1>VaultAI</h1><p data-i18n="brandSub">Credentials for AI, safely</p></div>
+        <button class="nav-btn active" data-tab="home" data-i18n="nav_home"><span class="ico">⌂</span> Home</button>
+        <button class="nav-btn" data-tab="passwords" data-i18n="nav_passwords"><span class="ico">◉</span> Passwords</button>
+        <button class="nav-btn" data-tab="connections" data-i18n="nav_connections"><span class="ico">◈</span> Connections</button>
+        <button class="nav-btn" data-tab="assistants" data-i18n="nav_assistants"><span class="ico">◎</span> AI assistants</button>
+        <button class="nav-btn" data-tab="activity" data-i18n="nav_activity"><span class="ico">☰</span> Activity</button>
+        <button class="nav-btn" data-tab="settings" data-i18n="nav_settings"><span class="ico">⚙</span> Settings</button>
+        <div class="spacer"></div>
+        <div class="foot"></div>
+      </aside>
+
+      <main class="main">
+        <div class="page-header">
+          <div><h2 id="page-title">Home</h2><p class="desc" id="page-desc"></p></div>
+          <div class="header-right" id="page-actions"></div>
+        </div>
+
+        <!-- HOME -->
+        <section id="tab-home" class="tab">
+          <div id="home-notices"></div>
+          <div class="card onboarding hidden" id="onboarding">
+            <div class="card-head">
+              <h3 data-i18n="ob_title">Get started</h3>
+              <span class="muted small" id="ob-progress"></span>
+              <span class="spacer"></span>
+              <button class="btn sm ghost" id="btn-ob-hide" data-i18n="ob_hide">Hide guide</button>
+            </div>
+            <ol class="ob-steps">
+              <li id="ob-step-vault"><span class="ob-dot"></span><div class="grow"><strong data-i18n="ob_s1">Create your vault</strong><div class="muted small" data-i18n="ob_s1d"></div></div></li>
+              <li id="ob-step-cred"><span class="ob-dot"></span><div class="grow"><strong data-i18n="ob_s2">Add your first credential</strong><div class="muted small" data-i18n="ob_s2d"></div></div>
+                <div class="ob-actions"><button class="btn sm" id="btn-ob-conn" data-i18n="ob_s2a">Add a connection</button><button class="btn sm secondary" id="btn-ob-pw" data-i18n="ob_s2b">Add a password</button></div></li>
+              <li id="ob-step-ai"><span class="ob-dot"></span><div class="grow"><strong data-i18n="ob_s3">Connect an AI assistant</strong><div class="muted small" data-i18n="ob_s3d"></div></div>
+                <div class="ob-actions"><button class="btn sm" id="btn-ob-ai" data-i18n="ob_s3a">Connect an AI</button></div></li>
+              <li id="ob-step-verify"><span class="ob-dot"></span><div class="grow"><strong data-i18n="ob_s4">Verify the connection</strong><div class="muted small" data-i18n="ob_s4d"></div></div>
+                <div class="ob-actions"><button class="btn sm" id="btn-ob-verify" data-i18n="ob_s4a">Open setup</button></div></li>
+            </ol>
+          </div>
+          <div class="grid home-grid">
+            <div class="card" id="home-access">
+              <div class="card-head"><h3 data-i18n="h_access">What your AI assistants can access now</h3><span class="spacer"></span>
+                <button class="btn sm kill-btn" id="btn-killswitch-home" data-i18n="ks_button">Revoke all AI access</button></div>
+              <div id="home-access-list"></div>
+            </div>
+            <div class="card" id="home-today">
+              <div class="card-head"><h3 data-i18n="h_today">Today</h3><span class="spacer"></span><a href="#" class="link-out" id="lnk-home-activity" data-i18n="h_allActivity">All activity →</a></div>
+              <div class="stat-row" id="home-today-stats"></div>
+              <div id="home-today-list"></div>
+            </div>
+          </div>
+          <div class="card" id="home-health">
+            <div class="card-head"><h3 data-i18n="h_health">Password security</h3><span class="spacer"></span><a href="#" class="link-out" id="lnk-home-health" data-i18n="h_openCheck">Open security check →</a></div>
+            <div id="home-health-body"></div>
+          </div>
+        </section>
+
+        <!-- PASSWORDS -->
+        <section id="tab-passwords" class="tab hidden">
+          <div class="subtabs seg" role="tablist">
+            <button type="button" role="tab" data-sub="pw-items" class="on" data-i18n="p_items">All items</button>
+            <button type="button" role="tab" data-sub="pw-check"><span data-i18n="p_check">Security check</span> <span class="count" id="pw-check-count"></span></button>
+          </div>
+          <div class="card subpanel" id="pw-items">
+            <div class="filter-bar">
+              <span id="pw-db-badge" class="pill hidden" title="DB" data-i18n="f_dbBadge">DB</span>
+              <div class="field grow">
+                <label class="field-label" for="pw-search" data-i18n="search">Search</label>
+                <input id="pw-search" type="search" autocomplete="off" data-i18n-ph="ph_pwSearch" />
+              </div>
+              <div class="field">
+                <label class="field-label" for="pw-fav-filter" data-i18n="f_show">Show</label>
+                <select id="pw-fav-filter"><option value="" data-i18n="all">All</option><option value="1" data-i18n="favoritesOnly">Favorites</option></select>
+              </div>
+            </div>
+            <div id="pw-list"></div>
+          </div>
+          <div class="subpanel hidden" id="pw-check">
+            <div class="stat-row" id="health-stats"></div>
+            <div class="grid grid-3" id="health-lists">
+              <div class="card"><div class="card-head"><h3 data-i18n="s_weak">Weak passwords</h3></div><div id="health-weak"></div></div>
+              <div class="card"><div class="card-head"><h3 data-i18n="s_reused">Reused passwords</h3></div><div id="health-reused"></div></div>
+              <div class="card"><div class="card-head"><h3 data-i18n="s_old">Not changed in 180+ days</h3></div><div id="health-old"></div></div>
+            </div>
+            <p class="muted small" data-i18n="s_privacy"></p>
+          </div>
+        </section>
+
+        <!-- CONNECTIONS -->
+        <section id="tab-connections" class="tab hidden">
+          <div class="card">
+            <div class="card-head"><h3 data-i18n="c_mine">My connections</h3></div>
+            <div id="apps-list"></div>
+          </div>
+          <h4 class="section-title" data-i18n="c_addTitle">Add a connection</h4>
+          <div class="tiles" id="connector-grid"></div>
+        </section>
+
+        <!-- AI ASSISTANTS -->
+        <section id="tab-assistants" class="tab hidden">
+          <div class="card">
+            <div class="card-head"><h3 data-i18n="a_list">AI assistants</h3></div>
+            <div id="asst-list"></div>
+          </div>
+          <div class="card" id="perm-card">
+            <div class="card-head"><h3 data-i18n="p_access">Access</h3><span class="muted small" data-i18n="p_immediate">Changes apply immediately</span></div>
+            <div class="level-legend" id="perm-legend"></div>
+            <div class="matrix" id="perm-matrix"></div>
+          </div>
+        </section>
+
+        <!-- ACTIVITY -->
+        <section id="tab-activity" class="tab hidden">
+          <div class="card">
+            <div class="filter-bar">
+              <div class="field grow"><label class="field-label" for="act-q" data-i18n="search">Search</label>
+                <input id="act-q" type="search" autocomplete="off" data-i18n-ph="ph_actSearch" /></div>
+              <div class="field"><span class="field-label" data-i18n="act_outcome">Outcome</span>
+                <div class="seg" id="act-outcome" role="radiogroup">
+                  <button type="button" data-ok="" class="on" data-i18n="all">All</button><button type="button" data-ok="true" data-i18n="act_ok">Worked</button><button type="button" data-ok="false" data-i18n="act_refused">Refused</button>
+                </div></div>
+            </div>
+            <div id="activity-list"></div>
+          </div>
+          <div class="card" id="limits-card">
+            <h3 data-i18n="l_title">Daily limits</h3>
+            <p class="muted"><span data-i18n="h_limitsIntro">Shared across all AI assistants. Counters reset at midnight UTC · today</span> <span id="utc-date" class="mono"></span></p>
+            <form class="form form-grid inline-form" novalidate data-form="defaultLimit">
+              <div class="field">
+                <label class="field-label required" for="default-limit" data-i18n="f_defaultLimit">Default limit per tool</label>
+                <input id="default-limit" type="number" inputmode="numeric" min="0" max="100000" step="1" data-rules="required|int:0-100000" />
+                <div class="help" data-i18n="h_defaultLimit"></div>
+                <div class="err" role="alert"></div>
+              </div>
+              <div class="field shrink"><label class="field-label">&nbsp;</label><button class="btn secondary" type="submit" id="btn-save-default-limit" data-i18n="f_saveDefault">Save default</button></div>
+            </form>
+            <form class="form form-grid inline-form" novalidate data-form="limit">
+              <div class="field">
+                <label class="field-label required" for="limit-key" data-i18n="f_toolKey">Tool</label>
+                <input id="limit-key" list="limit-keys" autocomplete="off" spellcheck="false" autocapitalize="off" data-rules="required|pattern:toolKey" placeholder="github:create_issue" />
+                <datalist id="limit-keys"></datalist>
+                <div class="help" data-i18n="h_toolKey"></div>
+                <div class="err" role="alert"></div>
+              </div>
+              <div class="field">
+                <label class="field-label required" for="limit-val" data-i18n="f_limit">Daily limit</label>
+                <input id="limit-val" type="number" inputmode="numeric" min="0" max="100000" step="1" value="50" data-rules="required|int:0-100000" />
+                <div class="help" data-i18n="h_limit"></div>
+                <div class="err" role="alert"></div>
+              </div>
+              <div class="field shrink"><label class="field-label">&nbsp;</label><button class="btn" type="submit" id="btn-set-limit" data-i18n="f_setLimit">Set limit</button></div>
+            </form>
+            <div id="limits-list"></div>
+          </div>
+        </section>
+
+        <!-- SETTINGS -->
+        <section id="tab-settings" class="tab hidden">
+          <div class="subtabs seg" role="tablist">
+            <button type="button" role="tab" data-sub="set-general" class="on" data-i18n="set_general">General</button>
+            <button type="button" role="tab" data-sub="set-security" data-i18n="set_security">Security</button>
+            <button type="button" role="tab" data-sub="set-advanced" data-i18n="set_advanced">Advanced</button>
+          </div>
+          <div class="subpanel" id="set-general">
+            <div class="card form">
+              <h3 data-i18n="set_general">General</h3>
+              <div class="form-grid">
+                <div class="field">
+                  <label class="field-label" for="set-lang" data-i18n="language">Language</label>
+                  <select id="set-lang"><option value="zh-CN">中文</option><option value="en">English</option></select>
+                  <div class="help" data-i18n="h_lang"></div>
+                </div>
+                <div class="field">
+                  <span class="field-label" data-i18n="f_siteIcons">Website icons</span>
+                  <label class="check"><input type="checkbox" id="set-icons" /> <span data-i18n="f_siteIconsLabel"></span></label>
+                  <div class="help" data-i18n="h_siteIcons"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="subpanel hidden" id="set-security">
+            <form class="card form" novalidate data-form="settings" id="settings-form" data-guard>
+              <h3 data-i18n="f_lockClip">Auto-lock &amp; clipboard</h3>
+              <div class="form-grid">
+                <div class="field">
+                  <label class="field-label required" for="set-idle" data-i18n="f_idle">Auto-lock after idle (minutes)</label>
+                  <input id="set-idle" type="number" inputmode="numeric" min="0" max="1440" step="1" data-rules="required|int:0-1440" />
+                  <div class="help" data-i18n="h_idle"></div>
+                  <div class="err" role="alert"></div>
+                </div>
+                <div class="field">
+                  <label class="field-label required" for="set-clip" data-i18n="f_clip">Clear clipboard after (seconds)</label>
+                  <input id="set-clip" type="number" inputmode="numeric" min="0" max="600" step="1" data-rules="required|int:0-600" />
+                  <div class="help" data-i18n="h_clip"></div>
+                  <div class="err" role="alert"></div>
+                </div>
+              </div>
+              <div class="form-errors hidden" role="alert"></div>
+              <div class="actions-row"><span class="spacer"></span><button class="btn" type="submit" id="btn-save-settings" data-i18n="save">Save</button></div>
+            </form>
+
+            <form class="card form" novalidate data-form="autofill" id="autofill-form" data-guard>
+              <h3 data-i18n="f_autofill">Autofill</h3>
+              <p class="muted small" data-i18n="h_autofillIntro"></p>
+              <div class="form-grid">
+                <div class="field">
+                  <span class="field-label" data-i18n="f_autofillEnabled">Enable autofill</span>
+                  <label class="check"><input type="checkbox" id="set-af-on" /> <span data-i18n="f_autofillEnabledLabel"></span></label>
+                  <div class="help" data-i18n="h_autofillEnabled"></div>
+                </div>
+                <div class="field">
+                  <label class="field-label" for="set-af-trigger" data-i18n="f_autofillTrigger">Text trigger</label>
+                  <input id="set-af-trigger" type="text" maxlength="16" spellcheck="false" autocomplete="off" placeholder="pp" />
+                  <div class="help" data-i18n="h_autofillTrigger"></div>
+                </div>
+                <div class="field">
+                  <label class="field-label" for="set-af-hotkey" data-i18n="f_autofillHotkey">Global hotkey</label>
+                  <input id="set-af-hotkey" type="text" maxlength="64" spellcheck="false" autocomplete="off" placeholder="CommandOrControl+Shift+P" />
+                  <div class="help" data-i18n="h_autofillHotkey"></div>
+                </div>
+                <div class="field">
+                  <span class="field-label" data-i18n="f_autofillConfirm">Confirm before fill</span>
+                  <label class="check"><input type="checkbox" id="set-af-confirm" /> <span data-i18n="f_autofillConfirmLabel"></span></label>
+                  <div class="help" data-i18n="h_autofillConfirm"></div>
+                </div>
+                <div class="field">
+                  <label class="field-label" for="set-qc-hotkey" data-i18n="f_qcHotkey">Quick-create hotkey</label>
+                  <input id="set-qc-hotkey" type="text" maxlength="64" spellcheck="false" autocomplete="off" placeholder="CommandOrControl+Shift+N" />
+                  <div class="help" data-i18n="h_qcHotkey"></div>
+                </div>
+                <div class="field">
+                  <label class="field-label" for="set-save-hotkey" data-i18n="f_saveLoginHotkey">Save-login hotkey</label>
+                  <input id="set-save-hotkey" type="text" maxlength="64" spellcheck="false" autocomplete="off" placeholder="CommandOrControl+Shift+S" />
+                  <div class="help" data-i18n="h_saveLoginHotkey">Opens caret mini sheet and reads the focused field once — not an always-on keylogger.</div>
+                </div>
+              </div>
+              <div class="callout info small" data-i18n="h_autofillLimits"></div>
+              <div class="actions-row"><span class="spacer"></span><button class="btn" type="submit" id="btn-save-autofill" data-i18n="save">Save</button></div>
+            </form>
+
+            <form class="card form" novalidate data-form="dbstorage" id="dbstorage-form" data-guard autocomplete="off">
+              <h3 data-i18n="f_dbStorage">Database</h3>
+              <p class="muted small" data-i18n="h_dbStorageIntro"></p>
+              <div class="form-grid">
+                <div class="field">
+                  <span class="field-label" data-i18n="f_dbEnable">Store passwords in database</span>
+                  <label class="check"><input type="checkbox" id="db-enabled" /> <span data-i18n="f_dbEnableLabel"></span></label>
+                  <div class="help" data-i18n="h_dbEnable"></div>
+                </div>
+                <div class="field">
+                  <label class="field-label" for="db-engine" data-i18n="f_dbEngine">Engine</label>
+                  <select id="db-engine">
+                    <option value="sqlite">SQLite</option>
+                    <option value="postgres">PostgreSQL</option>
+                    <option value="mysql">MySQL / MariaDB</option>
+                  </select>
+                </div>
+                <div class="field" data-db-sqlite>
+                  <label class="field-label" for="db-sqlite" data-i18n="f_dbSqlite">SQLite file path</label>
+                  <input id="db-sqlite" type="text" spellcheck="false" autocomplete="off" placeholder="C:\…\vaultai-passwords.sqlite" />
+                </div>
+                <div class="field" data-db-server>
+                  <label class="field-label" for="db-uri" data-i18n="f_dbUri">Connection URI (optional)</label>
+                  <input id="db-uri" type="text" spellcheck="false" autocomplete="off" placeholder="postgres://user:***@host:5432/db" />
+                </div>
+                <div class="field" data-db-server>
+                  <label class="field-label" for="db-host" data-i18n="f_dbHost">Host</label>
+                  <input id="db-host" type="text" spellcheck="false" autocomplete="off" placeholder="127.0.0.1" />
+                </div>
+                <div class="field" data-db-server>
+                  <label class="field-label" for="db-port" data-i18n="f_dbPort">Port</label>
+                  <input id="db-port" type="number" inputmode="numeric" />
+                </div>
+                <div class="field" data-db-server>
+                  <label class="field-label" for="db-user" data-i18n="f_dbUser">User</label>
+                  <input id="db-user" type="text" spellcheck="false" autocomplete="off" />
+                </div>
+                <div class="field" data-db-server>
+                  <label class="field-label" for="db-pass" data-i18n="f_dbPass">Password</label>
+                  <div class="input-wrap">
+                    <input id="db-pass" type="password" autocomplete="new-password" spellcheck="false" />
+                    <button type="button" class="icon-btn" data-eye="db-pass" data-icon="eye" tabindex="-1"></button>
+                  </div>
+                  <div class="help" data-i18n="h_dbPass"></div>
+                </div>
+                <div class="field" data-db-server>
+                  <label class="field-label" for="db-name" data-i18n="f_dbName">Database</label>
+                  <input id="db-name" type="text" spellcheck="false" autocomplete="off" />
+                </div>
+                <div class="field" data-db-server>
+                  <span class="field-label" data-i18n="f_dbSsl">SSL</span>
+                  <label class="check"><input type="checkbox" id="db-ssl" /> <span data-i18n="f_dbSslLabel"></span></label>
+                </div>
+                <div class="field">
+                  <span class="field-label" data-i18n="f_dbPlain">Store plaintext in DB</span>
+                  <label class="check"><input type="checkbox" id="db-plain" /> <span data-i18n="f_dbPlainLabel"></span></label>
+                  <div class="help warn" data-i18n="h_dbPlain"></div>
+                </div>
+              </div>
+              <div class="callout info small" id="db-status" data-i18n="h_dbStatusIdle"></div>
+              <div class="actions-row">
+                <button class="btn secondary" type="button" id="btn-db-test" data-i18n="f_dbTest">Test connection</button>
+                <button class="btn secondary hidden" type="button" id="btn-db-reconnect" data-i18n="f_dbReconnect">Reconnect</button>
+                <span class="spacer"></span>
+                <button class="btn" type="submit" id="btn-db-save" data-i18n="save">Save</button>
+              </div>
+            </form>
+
+            <form class="card form" novalidate data-form="changepw" id="changepw-form" data-guard autocomplete="off">
+              <h3 data-i18n="f_masterPw">Master password</h3>
+              <input type="text" autocomplete="username" value="VaultAI" class="hidden" aria-hidden="true" tabindex="-1" />
+              <div class="form-grid three">
+                <div class="field">
+                  <label class="field-label required" for="pw-old" data-i18n="f_currentPw">Current password</label>
+                  <div class="input-wrap">
+                    <input id="pw-old" type="password" autocomplete="current-password" spellcheck="false" autocapitalize="off" autocorrect="off" data-rules="required" />
+                    <button type="button" class="icon-btn" data-eye="pw-old" data-icon="eye" tabindex="-1"></button>
+                  </div>
+                  <div class="caps hidden" data-caps-for="pw-old" data-i18n="f_capsOn">Caps Lock is on</div>
+                  <div class="err" role="alert"></div>
+                </div>
+                <div class="field">
+                  <label class="field-label required" for="pw-new" data-i18n="f_newPw">New password</label>
+                  <div class="input-wrap">
+                    <input id="pw-new" type="password" autocomplete="new-password" spellcheck="false" autocapitalize="off" autocorrect="off" data-rules="required|master|differs:pw-old" />
+                    <button type="button" class="icon-btn" data-eye="pw-new" data-icon="eye" tabindex="-1"></button>
+                  </div>
+                  <div class="caps hidden" data-caps-for="pw-new" data-i18n="f_capsOn">Caps Lock is on</div>
+                  <div class="meter" data-meter-for="pw-new" data-context="master"></div>
+                  <ul class="checklist" data-checklist-for="pw-new"></ul>
+                  <div class="err" role="alert"></div>
+                </div>
+                <div class="field">
+                  <label class="field-label required" for="pw-new2" data-i18n="f_confirmPw">Confirm new password</label>
+                  <div class="input-wrap">
+                    <input id="pw-new2" type="password" autocomplete="new-password" spellcheck="false" autocapitalize="off" autocorrect="off" data-rules="required|match:pw-new" />
+                    <span class="match-ind" data-match-for="pw-new2"></span>
+                  </div>
+                  <div class="err" role="alert"></div>
+                </div>
+              </div>
+              <div class="callout warn small" data-i18n="f_changeWarn"></div>
+              <div class="form-errors hidden" role="alert"></div>
+              <div class="actions-row"><span class="spacer"></span><button class="btn" type="submit" id="btn-change-pw" data-i18n="f_changePw">Change password</button></div>
+            </form>
+
+            <div class="card">
+              <h3 data-i18n="f_backup">Backup</h3>
+              <p class="muted" data-i18n="h_backup"></p>
+              <div class="actions-row">
+                <button class="btn secondary" id="btn-export" data-i18n="f_exportBackup">Export backup</button>
+                <button class="btn secondary" id="btn-import" data-i18n="f_importBackup">Import backup…</button>
+                <input type="file" id="import-file" accept="application/json,.json" class="hidden" />
+              </div>
+            </div>
+          </div>
+          <div class="subpanel hidden" id="set-advanced">
+            <form class="card form" novalidate data-form="advanced" id="advanced-form" data-guard>
+              <h3 data-i18n="f_aiRate">AI request rate</h3>
+              <div class="form-grid inline-form">
+                <div class="field">
+                  <label class="field-label required" for="set-rate" data-i18n="f_rate">Requests per minute</label>
+                  <input id="set-rate" type="number" inputmode="numeric" min="10" max="10000" step="1" data-rules="required|int:10-10000" />
+                  <div class="help" data-i18n="h_rate"></div>
+                  <div class="err" role="alert"></div>
+                </div>
+                <div class="field shrink"><label class="field-label">&nbsp;</label><button class="btn" type="submit" id="btn-save-advanced" data-i18n="save">Save</button></div>
+              </div>
+              <div class="form-errors hidden" role="alert"></div>
+            </form>
+            <div class="card">
+              <h3 data-i18n="f_runtime">This computer</h3>
+              <dl class="kv" id="settings-info"></dl>
+              <p class="muted small" data-i18n="h_runtime"></p>
+            </div>
+            <div class="card">
+              <h3 data-i18n="f_about">About</h3>
+              <p class="muted" id="about-text"></p>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- ================= PASSWORD ITEM DIALOG ================= -->
+  <div id="pw-dialog" class="modal-backdrop hidden" data-dialog>
+    <form class="modal wide form" id="pw-editor" novalidate data-form="pwentry" data-guard role="dialog" aria-modal="true" aria-labelledby="pw-editor-title" autocomplete="off">
+      <div class="modal-head">
+        <span class="avatar lg" id="pw-avatar">?</span>
+        <div class="grow"><h3 id="pw-editor-title">New item</h3><div class="muted small" id="pw-site-host"></div></div>
+        <button type="button" class="icon-btn" data-close-dialog data-icon="x"></button>
+      </div>
+      <input type="hidden" id="pw-id" />
+      <div class="callout warn hidden" id="pw-dup-warn"></div>
+      <div class="modal-body">
+        <div class="field">
+          <label class="field-label" for="pw-url" data-i18n="url">Website</label>
+          <div class="input-wrap">
+            <input id="pw-url" type="url" inputmode="url" autocomplete="off" spellcheck="false" autocapitalize="off" data-rules="url" placeholder="https://github.com/login" />
+            <button type="button" class="icon-btn" id="btn-pw-open" data-icon="external" tabindex="-1"></button>
+          </div>
+          <div class="help" data-i18n="h_pwUrl"></div>
+          <div class="err" role="alert"></div>
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label class="field-label required" for="pw-title" data-i18n="title">Title</label>
+            <input id="pw-title" autocomplete="off" maxlength="120" data-rules="required|maxlen:120" placeholder="GitHub" />
+            <div class="err" role="alert"></div>
+          </div>
+          <div class="field">
+            <label class="field-label" for="pw-user" data-i18n="username">Username or email</label>
+            <input id="pw-user" list="pw-user-list" autocomplete="off" spellcheck="false" autocapitalize="off" data-rules="emailIfAt|maxlen:200" placeholder="alice@example.com" />
+            <datalist id="pw-user-list"></datalist>
+            <div class="err" role="alert"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label required" for="pw-pass" data-i18n="password">Password</label>
+          <div class="input-wrap">
+            <input id="pw-pass" type="password" class="mono" autocomplete="new-password" spellcheck="false" autocapitalize="off" autocorrect="off" data-rules="requiredIfNew|maxlen:1024" />
+            <button type="button" class="icon-btn" id="btn-pw-toggle" data-eye="pw-pass" data-icon="eye" tabindex="-1"></button>
+            <button type="button" class="icon-btn" id="btn-pw-copy-field" data-icon="copy" tabindex="-1"></button>
+            <button type="button" class="icon-btn accent" id="btn-pw-gen" data-icon="dice" tabindex="-1"></button>
+          </div>
+          <div class="caps hidden" data-caps-for="pw-pass" data-i18n="f_capsOn">Caps Lock is on</div>
+          <div class="meter" data-meter-for="pw-pass" data-context="entry"></div>
+          <div class="warn-msg" id="pw-reuse-warn"></div>
+          <div class="help" id="pw-pass-help"></div>
+          <div class="err" role="alert"></div>
+          <div class="gen-inline hidden" id="pw-gen-panel"></div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="pw-totp" data-i18n="totp_label">Authenticator (TOTP)</label>
+          <div class="input-wrap">
+            <input id="pw-totp" class="mono" autocomplete="off" spellcheck="false" autocapitalize="off" data-i18n-ph="totp_ph" placeholder="otpauth://… or Base32 secret" />
+            <button type="button" class="icon-btn" id="btn-pw-totp-clear" data-i18n-title="totp_clear" title="Clear" tabindex="-1">✕</button>
+          </div>
+          <div class="help" id="pw-totp-help" data-i18n="h_totp">Paste an otpauth:// URI or Base32 secret (Google Authenticator compatible). Stored encrypted. Leave blank to keep; clear with ✕.</div>
+          <div class="callout info small hidden" id="pw-totp-live"></div>
+          <div class="err" role="alert"></div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="pw-tags" data-i18n="tags">Tags</label>
+          <input id="pw-tags" autocomplete="off" data-rules="tags" data-i18n-ph="ph_tags" />
+          <div class="chips" id="pw-tag-suggest"></div>
+          <div class="help" data-i18n="h_tags"></div>
+          <div class="err" role="alert"></div>
+        </div>
+        <label class="check"><input type="checkbox" id="pw-fav" /> <span data-i18n="favorite">Favorite</span></label>
+        <div class="field">
+          <label class="field-label" for="pw-notes" data-i18n="notes">Notes</label>
+          <textarea id="pw-notes" rows="3" maxlength="5000" data-rules="maxlen:5000" data-i18n-ph="ph_notes"></textarea>
+          <div class="err" role="alert"></div>
+        </div>
+        <div class="form-errors hidden" role="alert"></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn sm ghost danger-text hidden" type="button" id="btn-pw-delete" data-i18n="p_deleteItem">Delete item</button>
+        <span class="spacer"></span>
+        <button class="btn secondary" type="button" id="btn-pw-clear" data-close-dialog data-i18n="cancel">Cancel</button>
+        <button class="btn" type="submit" id="btn-pw-save" data-i18n="save">Save</button>
+      </div>
+    </form>
+  </div>
+
+
+  <!-- ================= QUICK CREATE (1.7.0) ================= -->
+  <div id="pw-quick-dialog" class="modal-backdrop hidden" data-dialog>
+    <form class="modal form sheet-sm" id="pw-quick" novalidate data-form="pwquick" data-guard role="dialog" aria-modal="true" aria-labelledby="pw-quick-title" autocomplete="off">
+      <div class="modal-head" style="padding:14px 18px 8px;display:flex;gap:10px;align-items:center">
+        <div class="grow"><h3 id="pw-quick-title" data-i18n="qc_title">Quick create</h3>
+          <div class="muted small" data-i18n="qc_hint">URL, username, password — then Save. Ctrl+N</div></div>
+        <button type="button" class="icon-btn" data-close-dialog data-icon="x"></button>
+      </div>
+      <div class="modal-body" style="padding:4px 18px 6px">
+        <div class="field">
+          <label class="field-label" for="qc-url" data-i18n="url">Website</label>
+          <input id="qc-url" type="url" inputmode="url" autocomplete="off" spellcheck="false" autocapitalize="off" data-rules="url" placeholder="https://github.com/login" />
+          <div class="help" data-i18n="qc_urlHelp">Optional. Title fills in from the host when empty.</div>
+          <div class="err" role="alert"></div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="qc-title" data-i18n="title">Title</label>
+          <input id="qc-title" autocomplete="off" maxlength="120" data-rules="maxlen:120" placeholder="GitHub" />
+          <div class="err" role="alert"></div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="qc-user" data-i18n="username">Username or email</label>
+          <input id="qc-user" autocomplete="off" spellcheck="false" autocapitalize="off" data-rules="emailIfAt|maxlen:200" placeholder="alice@example.com" />
+          <div class="err" role="alert"></div>
+        </div>
+        <div class="field">
+          <label class="field-label required" for="qc-pass" data-i18n="password">Password</label>
+          <div class="input-wrap">
+            <input id="qc-pass" type="password" class="mono" autocomplete="new-password" spellcheck="false" autocapitalize="off" autocorrect="off" data-rules="required|maxlen:1024" />
+            <button type="button" class="icon-btn" id="btn-qc-toggle" data-eye="qc-pass" data-icon="eye" tabindex="-1"></button>
+            <button type="button" class="icon-btn accent" id="btn-qc-gen" data-icon="dice" tabindex="-1"></button>
+          </div>
+          <div class="caps hidden" data-caps-for="qc-pass" data-i18n="f_capsOn">Caps Lock is on</div>
+          <div class="meter" data-meter-for="qc-pass" data-context="entry"></div>
+          <div class="err" role="alert"></div>
+          <div class="gen-inline hidden" id="qc-gen-panel"></div>
+        </div>
+        <div class="form-errors hidden" role="alert"></div>
+      </div>
+      <div class="modal-foot" style="padding:12px 18px">
+        <button class="btn sm ghost" type="button" id="btn-qc-more" data-i18n="qc_more">More…</button>
+        <span class="spacer"></span>
+        <button class="btn secondary" type="button" data-close-dialog data-i18n="cancel">Cancel</button>
+        <button class="btn secondary" type="button" id="btn-qc-save-another" data-i18n="qc_saveAnother">Save &amp; another</button>
+        <button class="btn" type="submit" id="btn-qc-save" data-i18n="save">Save</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ================= PASSWORD IMPORT (1.7.0) ================= -->
+  <div id="pw-import-dialog" class="modal-backdrop hidden" data-dialog>
+    <div class="modal wide" role="dialog" aria-modal="true" aria-labelledby="pw-import-title">
+      <div class="modal-head">
+        <div class="grow"><h3 id="pw-import-title" data-i18n="imp_title">Import passwords</h3>
+          <div class="muted small" data-i18n="imp_sub">Chrome / Edge / Firefox / Bitwarden / 1Password / KeePass / Password Depot CSV·XML</div></div>
+        <button type="button" class="icon-btn" data-close-dialog data-icon="x"></button>
+      </div>
+      <div class="modal-body">
+        <div class="callout warn small" data-i18n="imp_plainWarn">Export files are plaintext. Delete them after a successful import (including Recycle Bin).</div>
+        <div class="field" id="imp-pick-wrap">
+          <label class="field-label" for="imp-file" data-i18n="imp_file">Export file</label>
+          <input id="imp-file" type="file" accept=".csv,.xml,text/csv,text/xml,application/xml" />
+          <div class="help" data-i18n="imp_fileHelp">From Password Depot: Tools → Export → CSV or XML. Native .pswe/.pswd files are not supported.</div>
+        </div>
+        <div id="imp-preview" class="hidden">
+          <div class="stat-row" id="imp-stats"></div>
+          <div class="muted small" id="imp-format"></div>
+          <div class="callout warn small hidden" id="imp-warnings"></div>
+          <div class="field">
+            <label class="field-label" for="imp-mode" data-i18n="imp_mode">Duplicates (same website + username)</label>
+            <select id="imp-mode">
+              <option value="skip" data-i18n="imp_modeSkip">Skip duplicates</option>
+              <option value="update" data-i18n="imp_modeUpdate">Update matching items</option>
+              <option value="all" data-i18n="imp_modeAll">Import all as new</option>
+            </select>
+          </div>
+          <div class="table-wrap" style="max-height:240px;overflow:auto">
+            <table class="table" id="imp-table"><thead><tr>
+              <th data-i18n="title">Title</th><th data-i18n="username">Username</th><th data-i18n="url">Website</th><th></th>
+            </tr></thead><tbody></tbody></table>
+          </div>
+        </div>
+        <div id="imp-summary" class="hidden callout ok small"></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn sm ghost" type="button" id="btn-imp-docs" data-i18n="imp_docs">How to export…</button>
+        <span class="spacer"></span>
+        <button class="btn secondary" type="button" data-close-dialog data-i18n="cancel">Cancel</button>
+        <button class="btn" type="button" id="btn-imp-go" disabled data-i18n="imp_go">Import</button>
+      </div>
+    </div>
+  </div>
+  <input type="file" id="imp-file-hidden" class="hidden" accept=".csv,.xml,text/csv,text/xml,application/xml" />
+
+  <!-- ================= GENERATOR DIALOG ================= -->
+  <div id="gen-dialog" class="modal-backdrop hidden" data-dialog>
+    <div class="modal wide" role="dialog" aria-modal="true" aria-labelledby="gen-dialog-title">
+      <div class="modal-head">
+        <div class="grow"><h3 id="gen-dialog-title" data-i18n="g_title">Generate password</h3></div>
+        <button type="button" class="icon-btn" data-close-dialog data-icon="x"></button>
+      </div>
+      <div class="modal-body">
+        <div id="gen-page"></div>
+        <details class="gen-history-box">
+          <summary><span data-i18n="g_history">Recently generated</span> <span class="muted small" data-i18n="g_historyHint"></span></summary>
+          <ul class="gen-history" id="gen-history"></ul>
+          <button class="btn sm secondary" id="btn-gen-history-clear" data-i18n="g_clearHistory">Clear</button>
+        </details>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= CONNECTION DIALOG (add / edit) ================= -->
+  <div id="conn-dialog" class="modal-backdrop hidden" data-dialog>
+    <div class="modal wide" role="dialog" aria-modal="true" aria-labelledby="conn-dialog-title">
+      <div class="modal-head">
+        <div class="grow"><h3 id="conn-dialog-title"></h3><div class="muted small" id="conn-dialog-sub"></div></div>
+        <button type="button" class="icon-btn" data-close-dialog data-icon="x"></button>
+      </div>
+      <div class="modal-body" id="conn-dialog-body"></div>
+    </div>
+  </div>
+
+  <!-- ================= AI ASSISTANT DIALOG (connect + setup) ================= -->
+  <div id="ai-dialog" class="modal-backdrop hidden" data-dialog>
+    <div class="modal wide" role="dialog" aria-modal="true" aria-labelledby="ai-dialog-title">
+      <div class="modal-head">
+        <div class="grow"><h3 id="ai-dialog-title" data-i18n="ai_title">Connect an AI assistant</h3></div>
+        <button type="button" class="icon-btn" data-close-dialog data-icon="x"></button>
+      </div>
+      <div class="modal-body">
+        <form class="form" novalidate data-form="assistant" id="asst-form" data-guard>
+          <div class="field">
+            <span class="field-label" data-i18n="f_client">Which app?</span>
+            <div class="client-picker" id="asst-kind-picker" role="radiogroup"></div>
+            <input type="hidden" id="asst-kind" value="claude-desktop" />
+          </div>
+          <div class="form-grid">
+            <div class="field">
+              <label class="field-label required" for="asst-name" data-i18n="f_name">Name</label>
+              <input id="asst-name" autocomplete="off" maxlength="60" data-rules="required|minlen:2|maxlen:60" />
+              <div class="help" data-i18n="h_asstName"></div>
+              <div class="warn-msg"></div>
+              <div class="err" role="alert"></div>
+            </div>
+            <div class="field">
+              <label class="field-label" for="asst-dur" data-i18n="f_duration">Access expires</label>
+              <select id="asst-dur">
+                <option value="1d" data-i18n="d_1d">After 1 day</option>
+                <option value="7d" data-i18n="d_7d">After 7 days</option>
+                <option value="30d" selected data-i18n="d_30d">After 30 days</option>
+                <option value="1y" data-i18n="d_1y">After 1 year</option>
+                <option value="none" data-i18n="d_none">Never (not recommended)</option>
+              </select>
+              <div class="help" data-i18n="h_asstDur"></div>
+            </div>
+          </div>
+          <div class="form-errors hidden" role="alert"></div>
+          <div class="actions-row"><span class="muted small" data-i18n="h_permsOff"></span><span class="spacer"></span><button class="btn" type="submit" id="btn-add-asst" data-i18n="f_register">Create &amp; show setup</button></div>
+        </form>
+        <div class="setup hidden" id="ai-setup">
+          <div class="setup-tabs seg" id="setup-tabs" role="tablist"></div>
+          <div class="callout warn small hidden" id="setup-warn"></div>
+          <ol class="setup-steps" id="setup-steps"></ol>
+          <div class="code-wrap"><pre class="codeblock" id="setup-snippet"></pre><button type="button" class="btn sm secondary copy-snippet" id="btn-copy-snippet" data-i18n="a_copy">Copy</button></div>
+          <div class="field">
+            <label class="field-label" for="token-once" data-i18n="f_token">Access token</label>
+            <div class="input-wrap"><input id="token-once" readonly class="mono" type="password" /><button type="button" class="icon-btn" data-eye="token-once" data-icon="eye" tabindex="-1"></button><button type="button" class="icon-btn" id="btn-copy-token" data-icon="copy"></button></div>
+            <div class="help" data-i18n="h_tokenUse"></div>
+          </div>
+          <div class="verify-row">
+            <button class="btn" type="button" id="btn-verify" data-i18n="v_wait">Verify connection</button>
+            <span class="verify-status" id="verify-status" role="status"></span>
+          </div>
+          <div class="actions-row"><span class="spacer"></span><button class="btn secondary" type="button" id="btn-setup-perms" data-i18n="a_grant">Choose what it can access</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= IMPORT DIALOG ================= -->
+  <div id="import-dialog" class="modal-backdrop hidden" data-dialog>
+    <form class="modal form" novalidate data-form="import" role="dialog" aria-modal="true" autocomplete="off">
+      <h3 data-i18n="f_importBackup">Import backup…</h3>
+      <p class="muted" id="import-file-name"></p>
+      <div class="field">
+        <label class="field-label required" for="import-pw" data-i18n="f_backupPw">Master password of this backup</label>
+        <div class="input-wrap">
+          <input id="import-pw" type="password" autocomplete="off" spellcheck="false" autocapitalize="off" autocorrect="off" data-rules="required" />
+          <button type="button" class="icon-btn" data-eye="import-pw" data-icon="eye" tabindex="-1"></button>
+        </div>
+        <div class="caps hidden" data-caps-for="import-pw" data-i18n="f_capsOn">Caps Lock is on</div>
+        <div class="err" role="alert"></div>
+      </div>
+      <div class="callout warn small" data-i18n="h_importWarn"></div>
+      <div class="form-errors hidden" role="alert"></div>
+      <div class="actions">
+        <button class="btn secondary" type="button" data-close-dialog data-i18n="cancel">Cancel</button>
+        <button class="btn danger" type="submit" id="btn-import-go" data-i18n="f_importReplace">Replace vault</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ================= CONFIRM ================= -->
+  <div id="modal" class="modal-backdrop hidden" data-dialog>
+    <div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="modal-title">
+      <h3 id="modal-title">Confirm</h3>
+      <p class="muted" id="modal-body"></p>
+      <div class="actions">
+        <button class="btn secondary" id="modal-cancel" data-i18n="cancel">Cancel</button>
+        <button class="btn danger" id="modal-ok" data-i18n="confirmBtn">Confirm</button>
+      </div>
+    </div>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="/js/i18n.js"></script>
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>
