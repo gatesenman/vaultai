@@ -36,17 +36,15 @@
 
 ## 从源码运行
 
-源码在 `src/VaultAI/`。本仓库不包含安装包。
+源码在仓库根目录。本仓库不包含安装包。
 
 ```bash
-cd src/VaultAI
 npm install
 npm run build
 npm start            # http://127.0.0.1:3847
 # 桌面窗口请按该目录 package.json / BUILD.md 中的 electron 脚本
 ```
-
-API 密钥与主密码只保存在本机。详见根目录与 `src/VaultAI` 下的专题文档。
+API 密钥与主密码只保存在本机。详见仓库根目录下的专题文档。
 
 ## 文档
 
@@ -59,7 +57,7 @@ API 密钥与主密码只保存在本机。详见根目录与 `src/VaultAI` 下�
 
 ## 许可证
 
-`src/VaultAI/package.json` 声明为 MIT。仓库根目录未附带 LICENSE 文件。
+`package.json` 声明为 MIT。仓库根目录未附带 LICENSE 文件。
 
 ---
 
@@ -103,17 +101,15 @@ API 密钥与主密码只保存在本机。详见根目录与 `src/VaultAI` 下�
 
 ## Getting started
 
-Source is under `src/VaultAI/`. This repository does not include installers.
+Source is at the repository root. This repository does not include installers.
 
 ```bash
-cd src/VaultAI
 npm install
 npm run build
 npm start            # http://127.0.0.1:3847
 # For a desktop window, use the electron script in that package.json / BUILD.md
 ```
-
-API keys and the master password stay on this machine. See the topic docs at the repo root and under `src/VaultAI`.
+API keys and the master password stay on this machine. See the topic docs at the repository root.
 
 ## Documentation
 
@@ -126,5 +122,5 @@ API keys and the master password stay on this machine. See the topic docs at the
 
 ## License
 
-`src/VaultAI/package.json` declares MIT. There is no LICENSE file at the repository root.
+`package.json` declares MIT. There is no LICENSE file at the repository root.
 
