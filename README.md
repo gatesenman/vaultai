@@ -2,6 +2,24 @@
 
 **1.9.0** · 给 AI 用的密码管家：本地保险库保存凭据，按令牌把有限访问交给 Claude、Cursor 等助手，而不是把全部密码贴进对话。
 
+## 界面截图
+
+![密码列表](docs/screenshots/01-passwords.png)
+
+*密码列表 / Password list*
+
+![自动填充设置](docs/screenshots/02-settings-autofill.png)
+
+*自动填充设置 / Autofill settings*
+
+![快速新建](docs/screenshots/03-quick-create.png)
+
+*快速新建 / Quick create*
+
+![导入](docs/screenshots/04-import.png)
+
+*导入 / Import*
+
 ## 功能特性
 
 - 本地主密码保险库；主密码无法找回，请务必自行保管。
@@ -50,6 +68,24 @@ API 密钥与主密码只保存在本机。详见根目录与 `src/VaultAI` 下�
 # VaultAI
 
 **1.9.0** · A password manager built for AI: keep credentials in a local vault, and grant assistants such as Claude or Cursor limited access via tokens — instead of pasting every secret into chat.
+
+## Screenshots
+
+![Password list](docs/screenshots/01-passwords.png)
+
+*密码列表 / Password list*
+
+![Autofill settings](docs/screenshots/02-settings-autofill.png)
+
+*自动填充设置 / Autofill settings*
+
+![Quick create](docs/screenshots/03-quick-create.png)
+
+*快速新建 / Quick create*
+
+![Import](docs/screenshots/04-import.png)
+
+*导入 / Import*
 
 ## Features
 
