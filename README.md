@@ -48,12 +48,19 @@ API 密钥与主密码只保存在本机。详见仓库根目录下的专题文�
 
 ## 文档
 
+- [docs/DB-STORAGE.md](docs/DB-STORAGE.md)
+- [docs/IMPORT.md](docs/IMPORT.md)
 - [构建](BUILD.md)
 - [自动填充](AUTOFILL.md)
 - [数据库存储](DB-STORAGE.md)
 - [导入](IMPORT.md)
 - [TOTP](TOTP.md)
 - [安装说明](安装说明.txt)
+
+
+## 贡献
+
+欢迎通过 Issue 和 Pull Request 参与，详见 [CONTRIBUTING.md](CONTRIBUTING.md)。安全问题请按 [SECURITY.md](SECURITY.md) 私下报告。参与时请遵守 [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)。
 
 ## 许可证
 
@@ -113,6 +120,8 @@ API keys and the master password stay on this machine. See the topic docs at the
 
 ## Documentation
 
+- [docs/DB-STORAGE.md](docs/DB-STORAGE.md)
+- [docs/IMPORT.md](docs/IMPORT.md)
 - [构建](BUILD.md)
 - [自动填充](AUTOFILL.md)
 - [数据库存储](DB-STORAGE.md)
@@ -120,7 +129,11 @@ API keys and the master password stay on this machine. See the topic docs at the
 - [TOTP](TOTP.md)
 - [安装说明](安装说明.txt)
 
+
+## Contributing
+
+Issues and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md). Please report vulnerabilities privately via [SECURITY.md](SECURITY.md). This project follows [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+
 ## License
 
 `package.json` declares MIT. There is no LICENSE file at the repository root.
-

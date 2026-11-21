@@ -8,3 +8,16 @@ data/*.json
 out/
 release/
 e2e/tmp/
+
+# Additional hygiene
+Thumbs.db
+.env
+.env.local
+.env.*.local
+target/
+logs/
+.venv/
+__pycache__/
+coverage/
+!.env.example
+!.env.example.*
