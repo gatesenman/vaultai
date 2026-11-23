@@ -34,6 +34,10 @@
 - 本地服务（默认 http://127.0.0.1:3847）
 - 可选 Electron 窗口
 
+## 下载
+
+当前 GitHub 上**没有**已发布安装包（无 Release）。请从源码运行，或按 `BUILD.md` 自行打包。
+
 ## 从源码运行
 
 源码在仓库根目录。本仓库不包含安装包。
@@ -105,6 +109,10 @@ API 密钥与主密码只保存在本机。详见仓库根目录下的专题文�
 - TypeScript
 - 本地服务（默认 http://127.0.0.1:3847）
 - 可选 Electron 窗口
+
+### Download
+
+No published installer on GitHub Releases. Run from source, or package locally with `BUILD.md`.
 
 ## Getting started
 
