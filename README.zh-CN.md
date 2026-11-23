@@ -12,16 +12,29 @@
 
 把 API 密钥和密码保存在本机的 AES-256-GCM 加密保险库中。Claude Desktop、Cursor、Claude Code 或任何 MCP 客户端都可以通过 MCP 使用这些凭据，但永远看不到它们本身。AI 的使用受你设定的访问权限、每日限额和有效期约束，每次请求都会写入活动。界面支持中文（默认）和 English。
 
-## Windows 安装
+## 下载
 
-| 文件 | 用途 |
-|------|------|
-| **`VaultAI-Setup-1.9.0.exe`** | **安装版（推荐）**：按向导安装，带开始菜单和桌面快捷方式，可在「应用和功能」中卸载。静默安装：`/S` |
-| `VaultAI-Setup-1.9.0-win-x64.zip` | 备选安装包：解压后运行 `VaultAI-Setup.bat`，安装到 `%LOCALAPPDATA%\VaultAI` |
-| `VaultAI-Setup-1.9.0-Portable.exe` | 便携版：双击即用，不安装 |
-| `VaultAI-src.zip` | 源码，见 `BUILD.md` |
+当前 GitHub 上**没有**已发布安装包（无 Release）。下文曾经列出的 `VaultAI-Setup-1.9.0.exe` / zip / Portable **并不存在于本仓库的发行页**，请不要按这些文件名寻找下载。需要安装包时请在可构建环境按 `BUILD.md` 自行打包。本 README 不再提供虚假下载表。
 
-**从 1.3.x / 1.4.0 升级**：直接覆盖安装，用原来的主密码解锁即可。升级前会先把原始文件复制到 `%APPDATA%\VaultAI\pre-1.5.0-backup\`，首页会列出所有变化。
+## 界面截图
+
+以下为仓库 `docs/screenshots/` 中已有的真实产品界面。列表中的条目是 `example.com` 样例数据，不是真实银行账户。这些图也不是 Windows 安装包装好后的截图。
+
+![密码列表](docs/screenshots/01-passwords.png)
+
+*密码列表（样例数据）*
+
+![自动填充设置](docs/screenshots/02-settings-autofill.png)
+
+*自动填充设置*
+
+![快速新建](docs/screenshots/03-quick-create.png)
+
+*快速新建*
+
+![导入](docs/screenshots/04-import.png)
+
+*导入*
 
 
 ## 1.9.0 新功能
